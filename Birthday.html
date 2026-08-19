@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>생일 축하 장난 페이지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --ink: #000000;
+    --btn-yes: #000000;
+    --btn-yes-text: #FFFFFF;
+    --btn-no: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: "Black Han Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+  #stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  #question {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 60px;
+    letter-spacing: -0.5px;
+    transition: opacity 0.4s ease;
+  }
+  .btn {
+    position: absolute;
+    padding: 18px 36px;
+    font-size: 18px;
+    font-family: "Black Han Sans", sans-serif;
+    border: 2px solid #000000;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:active {
+    transform: scale(0.96);
+  }
+  #btn-yes {
+    background: var(--btn-yes);
+    color: var(--btn-yes-text);
+  }
+  #btn-yes:hover {
+    box-shadow: 0 5px 16px rgba(0,0,0,0.25);
+  }
+  #btn-no {
+    background: var(--btn-no);
+    color: var(--ink);
+    transition: top 0.25s ease, left 0.25s ease;
+  }
+  #btn-row {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  #reveal {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px;
+    text-align: center;
+  }
+  #reveal.show {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  #photo-slot {
+    width: min(92vw, 1024px);
+    aspect-ratio: 1024 / 768;
+    max-height: 90vh;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="question">are you 생일 ですか?</div>
+    <div id="btn-row">
+      <button class="btn" id="btn-yes">예</button>
+      <button class="btn" id="btn-no">아니오</button>
+    </div>
+  </div>
+  <div id="reveal">
+    <div id="photo-slot">
+      <img src="me.png" alt="생일 축하 사진">
+    </div>
+  </div>
+<script>
+  const noBtn = document.getElementById('btn-no');
+  const yesBtn = document.getElementById('btn-yes');
+  const btnRow = document.getElementById('btn-row');
+  const reveal = document.getElementById('reveal');
+  function placeInitial() {
+    const rowRect = btnRow.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const x = rowRect.width / 2 + 12;
+    const y = rowRect.height / 2 - btnRect.height / 2;
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+  window.addEventListener('load', placeInitial);
+  window.addEventListener('resize', placeInitial);
+  function dodge(clientX, clientY) {
+    const rect = noBtn.getBoundingClientRect();
+    const rowRect = btnRow.getBoundingClientRect();
+    const btnCenterX = rect.left + rect.width / 2;
+    const btnCenterY = rect.top + rect.height / 2;
+    const dist = Math.hypot(clientX - btnCenterX, clientY - btnCenterY);
+    const dangerZone = 120;
+    if (dist < dangerZone) {
+      const maxX = rowRect.width - rect.width - 10;
+      const maxY = window.innerHeight * 0.6;
+      let newX = Math.random() * maxX;
+      let newY = Math.random() * maxY;
+      noBtn.style.left = newX + 'px';
+      noBtn.style.top = (newY - rowRect.top + rowRect.height / 2 - 100) + 'px';
+    }
+  }
+  document.addEventListener('mousemove', (e) => dodge(e.clientX, e.clientY));
+  document.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dodge(t.clientX, t.clientY);
+  });
+  noBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    dodge(e.clientX, e.clientY);
+  });
+  noBtn.addEventListener('mouseenter', (e) => {
+    dodge(e.clientX, e.clientY);
+  });
+  yesBtn.addEventListener('click', () => {
+    reveal.classList.add('show');
+  });
+</script>
+</body>
+</html>
